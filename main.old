@@ -1,0 +1,110 @@
+#include <stdio.h>
+#include <string.h>
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "driver/uart.h"
+#include "driver/gpio.h"
+#include "esp_log.h"
+
+#include "gpio.h"
+
+static const char *TAG = "UART Events";
+
+#define LORA_UART_NUM UART_NUM_2
+#define BAUD_RATE 9600
+// #define BAUD_RATE 115200
+#define TXD GPIO_NUM_17
+#define RXD GPIO_NUM_16
+#define BUF_SIZE (1024)
+
+#define NORMAL_MODE 0
+#define CONFIG_MODE 1
+#define WAKEUP_MODE 2
+#define SAVE_MODE 3
+
+static void UART_init(void) {
+    uart_config_t uart_config = {
+        .baud_rate = BAUD_RATE,
+        .data_bits = UART_DATA_8_BITS,
+        .parity    = UART_PARITY_DISABLE,
+        .stop_bits = UART_STOP_BITS_1,
+        .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
+        .source_clk = UART_SCLK_DEFAULT,
+    };
+    int intr_alloc_flags = 0;
+
+#if CONFIG_UART_ISR_IN_IRAM
+    intr_alloc_flags = ESP_INTR_FLAG_IRAM;
+#endif
+
+    ESP_ERROR_CHECK(uart_driver_install(LORA_UART_NUM, 1024 * 2, 0, 0, NULL, intr_alloc_flags));
+    ESP_ERROR_CHECK(uart_param_config(LORA_UART_NUM, &uart_config));
+    ESP_ERROR_CHECK(uart_set_pin(LORA_UART_NUM, TXD, RXD, -1, -1));
+}
+
+void Busy_check(void) {
+    while (gpio_get_level(AUX) == 0) {
+        vTaskDelay(10 / portTICK_PERIOD_MS);
+        ESP_LOGI(TAG, "I'm busy...");
+    }
+    vTaskDelay(20 / portTICK_PERIOD_MS);
+}
+
+void Set_mode(uint8_t mode) {
+    Busy_check();
+    switch (mode) {
+        case 0:
+        case 1:
+            gpio_set_level(M0, mode);
+            gpio_set_level(M1, mode);
+            break;
+        case 2:
+            gpio_set_level(M0, 1);
+            gpio_set_level(M1, 0);
+            break;
+        default:
+            gpio_set_level(M0, 0);
+            gpio_set_level(M1, 1);
+            break;
+    }
+    vTaskDelay(5 / portTICK_PERIOD_MS);
+}
+
+/*
+    address = 0x0000-0xFFFF
+    channel = 0-31
+*/
+void Lora_set_address(uint16_t address, uint8_t channel) {
+    uint8_t send[6] = {0xC0, (address >> 8), (address & 0xFF), 0x1A, (channel & 0xFF), 0x44};
+    Busy_check();
+
+    Set_mode(CONFIG_MODE);
+    uart_write_bytes(LORA_UART_NUM, (const char *) send, 6);
+}
+
+void Lora_get_info(void) {
+    Set_mode(CONFIG_MODE);
+
+    uint8_t send[3] = {0xC1, 0xC1, 0xC1};
+    uint8_t receive[6];
+
+    Busy_check();
+    uart_write_bytes(LORA_UART_NUM, (const char *) send, 3);
+    Busy_check();
+    int len = uart_read_bytes(LORA_UART_NUM, receive, 6, 20);
+    ESP_LOGW(TAG, "Got len: %d", len);
+
+    for (uint8_t i = 0; i < 6; i++) {
+        printf("0x%02X ", receive[i]);
+    }
+    printf("\n");
+}
+
+void app_main(void)
+{
+    gpio_init();
+    UART_init();
+
+    Lora_set_address(0x0009, 23);
+    Lora_get_info();
+}

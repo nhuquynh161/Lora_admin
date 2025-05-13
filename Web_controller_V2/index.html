@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Báo Cháy - Fire Alarm Dashboard</title>
+    <!-- Google Font (Inter, similar to target) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- MQTT Client -->
+    <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+    <!-- HLS.js -->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+</head>
+<body>
+    <div class="page-container">
+        <main class="main-content">
+            <header class="page-header">
+                <div class="header-content-wrapper">
+                    <div class="header-main-info">
+                        <h1 class="main-title">
+                            <span class="title-icon">🔥</span>
+                            <span class="title-text-gradient">Fire Alarm System</span>
+                        </h1>
+                        <p class="subtitle">Electronics And Telecommunication Engineering Technology - IUH</p>
+                        <p class="subtitle">Ai Nhu Quynh</p>
+                    </div>
+                    <div id="connection-status-wrapper">
+                        <!-- Connection Status will be inserted here -->
+                    </div>
+                </div>
+                <div id="alert-banner-container" style="display: none;">
+                    <!-- Alert Banner will appear here if needed -->
+                </div>
+            </header>
+
+            <div id="device-container" class="device-grid">
+                <!-- Device UI will be generated here by JavaScript -->
+            </div>
+        </main>
+
+        <footer class="page-footer">
+            <p>Fire Alarm Monitoring System © 2025</p>
+            <p>Industrial University of Ho Chi Minh City</p>
+        </footer>
+    </div>
+
+    <!-- Camera Modal Structure (Initially Hidden) -->
+    <div id="camera-modal" class="modal-overlay" onclick="closeCameraModalOnClickOutside(event)">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <i class="fas fa-video modal-title-icon"></i>
+                    Camera Feed
+                </h3>
+                <button class="modal-close-button" onclick="closeCameraModal()" aria-label="Close camera view">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="camera-feed-placeholder">
+                    <!-- <iframe id="camera-player"
+                            width="100%"
+                            height="100%"
+                            src="about:blank"
+                            title="Camera video player"
+                            frameborder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                            referrerpolicy="strict-origin-when-cross-origin"
+                            allowfullscreen>
+                    </iframe> -->
+                    <img id="camera-player" width="100%" height="100%"></img>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="mqtt_config.js"></script>
+    <script src="mqtt_script.js"></script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+#ifndef STA_WIFI_H
+#define STA_WIFI_H
+
+#include <string.h>
+#include "esp_wifi.h"
+#include "esp_event.h"
+
+#define WIFI_ESP_MAXIMUM_RETRY 1000000
+
+// #define SSID_WIFI_STA "SkyTech"
+// #define PASS_WIFI_STA "skytech2024"
+// #define SSID_WIFI_STA "ThyThy"
+// #define PASS_WIFI_STA "12344321"
+// #define SSID_WIFI_STA "HattenNeverDie"
+// #define PASS_WIFI_STA "hatten123"
+#define SSID_WIFI_STA "Nokia 11"
+#define PASS_WIFI_STA "bonsochin"
+
+extern char WIFI_IP[16];
+
+void WIFI_init_sta(void);
+
+#endif // STA_WIFI_H

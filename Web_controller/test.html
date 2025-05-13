@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Device Controller</title>
+    <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Multi-Device Controller</h1>
+    <div id="device-container"></div>
+
+    <script>
+        const devices = [
+            { id: "device_1", name: "Thiết bị 1" },
+            { id: "device_2", name: "Thiết bị 2" },
+            { id: "device_3", name: "Thiết bị 3" },
+        ];
+
+        function createDeviceUI(device) {
+            const container = document.getElementById("device-container");
+
+            const deviceDiv = document.createElement("div");
+            deviceDiv.classList.add("device-box");
+            deviceDiv.id = device.id;
+            
+            deviceDiv.innerHTML = `
+                <h2>${device.name}</h2>
+                <p>Status: <span id="${device.id}_status" class="disconnected_ST">Disconnected</span></p>
+                <div class="device-content">
+                    <div class="output-container">
+                        <h3>Alarm Bell Control</h3>
+                        ${[0].map(i => `
+                            <div class="button-group">
+                                <span id="${device.id}_bell">...</span>
+                                <button class="send_button" onclick="toggleOUTPUT('${device.id}', ${i})">Alarm Bell</button>
+                            </div>
+                        `).join("")}
+                    </div>
+                    <div class="analog-container">
+                        <h3>Sensor Status</h3>
+                            <p><span class="ain-label">Temperature:</span> <span id="${device.id}_tem">...</span></p>
+                            <p><span class="ain-label">Humidity:</span> <span id="${device.id}_hum">...</span></p>
+                            <p><span class="ain-label">Air:</span> <span id="${device.id}_air">...</span></p>
+                    </div>
+                </div>
+            `;
+            
+            container.appendChild(deviceDiv);
+        }
+
+        devices.forEach(createDeviceUI);
+
+        function toggleOUTPUT(deviceId, outputNumber) {
+            console.log(`Toggling output ${outputNumber} on ${deviceId}`);
+        }
+    </script>
+    
+    <style>
+        #device-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        .device-box {
+            border: 2px solid #333;
+            padding: 10px;
+            margin: 10px;
+            border-radius: 8px;
+            max-width: 850px;
+            background-color: #f4f4f4;
+        }
+        .device-content {
+            display: flex;
+            justify-content: space-between;
+        }
+        .output-container{
+            flex: 1;
+            padding: 0px;
+        }
+        .analog-container {
+            flex: 1;
+            margin-right: 120px;
+            padding: 0px;
+        }
+        .button-group {
+            margin-right: 0px;
+        }
+    </style>
+</body>
+</html>
