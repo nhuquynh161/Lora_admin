@@ -3,17 +3,29 @@
 #include <stdio.h>
 #include <string.h>
 #include "nvs_flash.h"
+#include "esp_sntp.h"
+#include <time.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/event_groups.h"
 #include "esp_event.h"
-
 #include "esp_log.h"
+#include <sys/time.h>
 
 static const char *TAG = "Smart config WIFI";
+static const char *SNTP = "SNTP";
+
 static bool pairing = 0, Enable_LED = 0;
 
 EventGroupHandle_t s_wifi_event_group;
+
+void initialize_sntp(void)
+{
+    ESP_LOGI(SNTP, "Initializing SNTP...");
+    esp_sntp_setoperatingmode(SNTP_OPMODE_POLL);
+    esp_sntp_setservername(0, "pool.ntp.org");
+    esp_sntp_init();
+}
 
 void Wifi_smartconfig(void * parm)
 {
@@ -66,6 +78,17 @@ void event_handler(void* arg, esp_event_base_t event_base, int32_t event_id, voi
         }
         xEventGroupClearBits(s_wifi_event_group, CONNECTED_BIT);
     } else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
+        initialize_sntp();
+
+        vTaskDelay(2000 / portTICK_PERIOD_MS);
+
+        time_t now;
+        struct tm timeinfo;
+        time(&now);
+        localtime_r(&now, &timeinfo);
+
+        ESP_LOGI(TAG, "Time: %s", asctime(&timeinfo));
+
         xEventGroupSetBits(s_wifi_event_group, CONNECTED_BIT);
     } else if (event_base == SC_EVENT && event_id == SC_EVENT_SCAN_DONE) {
         ESP_LOGI(TAG, "Scan done");

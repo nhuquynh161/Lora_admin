@@ -74,8 +74,7 @@ void Handle_data_receive(char *data) {
         if (!send_) {
             if (Bell) {
                 send_ = 1;
-                send_http_request();
-                send_database_http_request(Jtem->valuestring, Jhum->valuestring, Jair->valuestring, Bell);
+                send_http_request(Jtem->valuestring, Jhum->valuestring, Jair->valuestring, Bell);
             }
         } else {
             if (!Bell) {
@@ -169,7 +168,7 @@ void UART_event_config(void) {
     uart_enable_pattern_det_baud_intr(LORA_UART_NUM, '+', PATTERN_CHR_NUM, 9, 0, 0);
     uart_pattern_queue_reset(LORA_UART_NUM, 20);
 
-    xTaskCreate(uart_event_task, "uart_event_task", 3072, NULL, 12, NULL);
+    xTaskCreate(uart_event_task, "uart_event_task", 1024 * 4, NULL, 12, NULL);
 }
 
 void Busy_check(void) {
